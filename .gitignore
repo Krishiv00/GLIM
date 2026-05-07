@@ -1,0 +1,8 @@
+.vscode
+build/
+lib/
+include/GL/
+include/GLFW/
+include/glm/
+include/stb_image.h
+Makefile
