@@ -1,6 +1,6 @@
 #pragma once
 
-#include <functional>
+#include <queue>
 
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
@@ -8,6 +8,7 @@
 #include "GLIM/Graphics/Color.hpp"
 #include "GLIM/Graphics/View.hpp"
 #include "GLIM/Graphics/VideoMode.hpp"
+#include "GLIM/System/Event.hpp"
 
 #include "GLIM/System/Vector2.hpp"
 #include "GLIM/System/Clock.hpp"
@@ -23,6 +24,10 @@ namespace gl {
 
     class Window final {
     private:
+        void pushEvent(Event event);
+
+        void registerEventCallbacks();
+
         GLFWwindow* m_Handle{nullptr};
 
         // state
@@ -33,7 +38,7 @@ namespace gl {
         Vector2u m_LastSize;
         Vector2i m_LastPosition;
 
-        std::function<void(Window&)> m_ResizeCallback;
+        std::queue<Event> m_EventQueue;
 
         View m_View;
 
@@ -74,7 +79,8 @@ namespace gl {
 
         void SetFullscreen(bool fullscreen);
 
-        void PollEvents();
+        [[nodiscard]]
+        std::optional<Event> PollEvents();
 
         void Clear(Color clearColor = Color::Black, bool clearDf = true);
 
@@ -83,8 +89,6 @@ namespace gl {
         void Close();
 
         void SetView(const View& view);
-
-        void SetResizeCallback(const std::function<void(Window&)>& callback);
 
         [[nodiscard]]
         Vector2u GetSize() const;

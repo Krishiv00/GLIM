@@ -3,10 +3,137 @@
 #include <thread>
 
 #include "GLIM/Graphics/Window.hpp"
-
 #include "GLIM/System/Input.hpp"
 
 using namespace gl;
+
+namespace Helpers {
+    [[nodiscard]]
+    constexpr inline bool ModAlt(int mods) noexcept {
+        return (mods & GLFW_MOD_ALT) != 0;
+    }
+
+    [[nodiscard]]
+    constexpr inline bool ModControl(int mods) noexcept {
+        return (mods & GLFW_MOD_CONTROL) != 0;
+    }
+
+    [[nodiscard]]
+    constexpr inline bool ModShift(int mods) noexcept {
+        return (mods & GLFW_MOD_SHIFT) != 0;
+    }
+
+    [[nodiscard]]
+    constexpr inline bool ModSuper(int mods) noexcept {
+        return (mods & GLFW_MOD_SUPER) != 0;
+    }
+}
+
+void Window::pushEvent(Event event) {
+    m_EventQueue.push(std::move(event));
+}
+
+void gl::Window::registerEventCallbacks() {
+    assert(m_Handle && "window not created yet");
+
+    glfwSetWindowUserPointer(m_Handle, this);
+
+    // resize
+    glfwSetFramebufferSizeCallback(m_Handle, [](GLFWwindow* w, int width, int height) {
+        glViewport(0, 0, width, height);
+
+        Window* self = static_cast<Window*>(glfwGetWindowUserPointer(w));
+
+        self->pushEvent(Event::Resized(Vector2u(
+            static_cast<unsigned int>(width),
+            static_cast<unsigned int>(height)
+        )));
+    });
+
+    // focus lost / gained
+    glfwSetWindowFocusCallback(m_Handle, [](GLFWwindow* w, int focused) {
+        Window* self = static_cast<Window*>(glfwGetWindowUserPointer(w));
+
+        if (focused) self->pushEvent(Event::FocusGained());
+        else self->pushEvent(Event::FocusLost());
+    });
+
+    // keyboard
+    glfwSetKeyCallback(m_Handle, [](GLFWwindow* w, int key, int /*scancode*/, int action, int mods) {
+        if (key < 0) return;
+
+        Window* self = static_cast<Window*>(glfwGetWindowUserPointer(w));
+
+        if (action == GLFW_PRESS) {
+            if (key < Keyboard::KEY_COUNT) {
+                Keyboard::s_States[key] = true;
+            }
+
+            self->pushEvent(Event::KeyPressed(
+                static_cast<Keyboard::Scancode>(key),
+                Helpers::ModAlt(mods), Helpers::ModControl(mods),
+                Helpers::ModShift(mods), Helpers::ModSuper(mods)
+            ));
+        }
+
+        else if (action == GLFW_RELEASE) {
+            if (key < Keyboard::KEY_COUNT) Keyboard::s_States[key] = false;
+
+            self->pushEvent(Event::KeyReleased(
+                static_cast<Keyboard::Scancode>(key),
+                Helpers::ModAlt(mods), Helpers::ModControl(mods),
+                Helpers::ModShift(mods), Helpers::ModSuper(mods)
+            ));
+        }
+});
+
+    // text / unicode input
+    glfwSetCharCallback(m_Handle, [](GLFWwindow* w, unsigned int codepoint) {
+        static_cast<Window*>(glfwGetWindowUserPointer(w))->pushEvent(Event::TextEntered(
+            static_cast<char32_t>(codepoint)
+        ));
+    });
+
+    // cursor movement
+    glfwSetCursorPosCallback(m_Handle, [](GLFWwindow* w, double x, double y) {
+        Window* self = static_cast<Window*>(glfwGetWindowUserPointer(w));
+        self->pushEvent(Event::MouseMoved(Mouse::GetPosition(self->m_Handle)));
+    });
+
+    // cursor enter / leave
+    glfwSetCursorEnterCallback(m_Handle, [](GLFWwindow* w, int entered) {
+        Window* self = static_cast<Window*>(glfwGetWindowUserPointer(w));
+
+        if (entered) self->pushEvent(Event::MouseEntered());
+        else self->pushEvent(Event::MouseLeft());
+    });
+
+    // mouse buttons
+    glfwSetMouseButtonCallback(m_Handle, [](GLFWwindow* w, int button, int action, int /*mods*/) {
+        Window* self = static_cast<Window*>(glfwGetWindowUserPointer(w));
+
+        if (button >= 0 && button < Mouse::BUTTON_COUNT) {
+            Mouse::s_States[button] = action == GLFW_PRESS;
+        }
+
+        const Vector2i pos = Mouse::GetPosition(self->m_Handle);
+
+        if (action == GLFW_PRESS) {
+            self->pushEvent(Event::MouseButtonPressed(static_cast<Mouse::Button>(button), pos));
+        } else if (action == GLFW_RELEASE) {
+            self->pushEvent(Event::MouseButtonReleased(static_cast<Mouse::Button>(button), pos));
+        }
+    });
+
+    // scroll wheel
+    glfwSetScrollCallback(m_Handle, [](GLFWwindow* w, double /*xoffset*/, double yoffset) {
+        Window* self = static_cast<Window*>(glfwGetWindowUserPointer(w));
+
+        self->pushEvent(Event::MouseWheelScrolled(
+            static_cast<float>(yoffset), Mouse::GetPosition(self->m_Handle)
+        ));
+    });
+}
 
 Window::Window(
     unsigned int width, unsigned int height, const char* title,
@@ -66,9 +193,7 @@ void Window::Create(
 
     glfwMakeContextCurrent(m_Handle);
 
-    glfwSetFramebufferSizeCallback(m_Handle, [](GLFWwindow*, int width, int height) {
-        glViewport(0, 0, width, height);
-    });
+    registerEventCallbacks();
 
     // init glew
     glewInit();
@@ -80,10 +205,6 @@ void Window::Create(
     glFrontFace(GL_CCW);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // init input devices
-    Keyboard::init(m_Handle);
-    Mouse::init(m_Handle);
 }
 
 void Window::SetSize(Vector2u size) {
@@ -163,11 +284,17 @@ void Window::SetFullscreen(bool fullscreen) {
     glfwSwapInterval(m_Vsync);
 }
 
-void Window::PollEvents() {
-    Keyboard::update();
-    Mouse::update();
+std::optional<Event> Window::PollEvents() {
+    // start polling events
+    if (m_EventQueue.empty()) glfwPollEvents();
 
-    glfwPollEvents();
+    // still empty, return
+    if (m_EventQueue.empty()) return std::nullopt;
+
+    const Event e = std::move(m_EventQueue.front());
+    m_EventQueue.pop();
+
+    return e;
 }
 
 void Window::Clear(Color clearColor, bool clearDf) {
@@ -199,21 +326,6 @@ void Window::Close() {
 
 void Window::SetView(const View& view) {
     m_View = view;
-}
-
-void Window::SetResizeCallback(const std::function<void(Window&)>& callback) {
-    if (!callback) return;
-
-    m_ResizeCallback = callback;
-
-    glfwSetWindowUserPointer(m_Handle, this);
-
-    glfwSetFramebufferSizeCallback(m_Handle, [](GLFWwindow* window, int width, int height) {
-        glViewport(0, 0, width, height);
-
-        Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-        self->m_ResizeCallback(*self);
-    });
 }
 
 Vector2u Window::GetSize() const {

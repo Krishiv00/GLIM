@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cassert>
+
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
@@ -9,39 +11,162 @@ namespace gl {
     class Keyboard final {
         friend class Window;
 
+    public:
+        enum class Scancode : uint16_t {
+            Space = GLFW_KEY_SPACE,
+            Apostrophe = GLFW_KEY_APOSTROPHE,
+            Comma = GLFW_KEY_COMMA,
+            Minus = GLFW_KEY_MINUS,
+            Period = GLFW_KEY_PERIOD,
+            Slash = GLFW_KEY_SLASH,
+
+            Num0 = GLFW_KEY_0,
+            Num1 = GLFW_KEY_1,
+            Num2 = GLFW_KEY_2,
+            Num3 = GLFW_KEY_3,
+            Num4 = GLFW_KEY_4,
+            Num5 = GLFW_KEY_5,
+            Num6 = GLFW_KEY_6,
+            Num7 = GLFW_KEY_7,
+            Num8 = GLFW_KEY_8,
+            Num9 = GLFW_KEY_9,
+
+            Semicolon = GLFW_KEY_SEMICOLON,
+            Equal = GLFW_KEY_EQUAL,
+
+            A = GLFW_KEY_A,
+            B = GLFW_KEY_B,
+            C = GLFW_KEY_C,
+            D = GLFW_KEY_D,
+            E = GLFW_KEY_E,
+            F = GLFW_KEY_F,
+            G = GLFW_KEY_G,
+            H = GLFW_KEY_H,
+            I = GLFW_KEY_I,
+            J = GLFW_KEY_J,
+            K = GLFW_KEY_K,
+            L = GLFW_KEY_L,
+            M = GLFW_KEY_M,
+            N = GLFW_KEY_N,
+            O = GLFW_KEY_O,
+            P = GLFW_KEY_P,
+            Q = GLFW_KEY_Q,
+            R = GLFW_KEY_R,
+            S = GLFW_KEY_S,
+            T = GLFW_KEY_T,
+            U = GLFW_KEY_U,
+            V = GLFW_KEY_V,
+            W = GLFW_KEY_W,
+            X = GLFW_KEY_X,
+            Y = GLFW_KEY_Y,
+            Z = GLFW_KEY_Z,
+
+            LeftBracket = GLFW_KEY_LEFT_BRACKET,
+            Backslash = GLFW_KEY_BACKSLASH,
+            RightBracket = GLFW_KEY_RIGHT_BRACKET,
+            GraveAccent = GLFW_KEY_GRAVE_ACCENT,
+
+            World1 = GLFW_KEY_WORLD_1,
+            World2 = GLFW_KEY_WORLD_2,
+
+            Escape = GLFW_KEY_ESCAPE,
+            Enter = GLFW_KEY_ENTER,
+            Tab = GLFW_KEY_TAB,
+            Backspace = GLFW_KEY_BACKSPACE,
+            Insert = GLFW_KEY_INSERT,
+            Delete = GLFW_KEY_DELETE,
+
+            Right = GLFW_KEY_RIGHT,
+            Left = GLFW_KEY_LEFT,
+            Down = GLFW_KEY_DOWN,
+            Up = GLFW_KEY_UP,
+
+            PageUp = GLFW_KEY_PAGE_UP,
+            PageDown = GLFW_KEY_PAGE_DOWN,
+            Home = GLFW_KEY_HOME,
+            End = GLFW_KEY_END,
+
+            CapsLock = GLFW_KEY_CAPS_LOCK,
+            ScrollLock = GLFW_KEY_SCROLL_LOCK,
+            NumLock = GLFW_KEY_NUM_LOCK,
+            PrintScreen = GLFW_KEY_PRINT_SCREEN,
+            Pause = GLFW_KEY_PAUSE,
+
+            F1 = GLFW_KEY_F1,
+            F2 = GLFW_KEY_F2,
+            F3 = GLFW_KEY_F3,
+            F4 = GLFW_KEY_F4,
+            F5 = GLFW_KEY_F5,
+            F6 = GLFW_KEY_F6,
+            F7 = GLFW_KEY_F7,
+            F8 = GLFW_KEY_F8,
+            F9 = GLFW_KEY_F9,
+            F10 = GLFW_KEY_F10,
+            F11 = GLFW_KEY_F11,
+            F12 = GLFW_KEY_F12,
+            F13 = GLFW_KEY_F13,
+            F14 = GLFW_KEY_F14,
+            F15 = GLFW_KEY_F15,
+            F16 = GLFW_KEY_F16,
+            F17 = GLFW_KEY_F17,
+            F18 = GLFW_KEY_F18,
+            F19 = GLFW_KEY_F19,
+            F20 = GLFW_KEY_F20,
+            F21 = GLFW_KEY_F21,
+            F22 = GLFW_KEY_F22,
+            F23 = GLFW_KEY_F23,
+            F24 = GLFW_KEY_F24,
+            F25 = GLFW_KEY_F25,
+
+            KP0 = GLFW_KEY_KP_0,
+            KP1 = GLFW_KEY_KP_1,
+            KP2 = GLFW_KEY_KP_2,
+            KP3 = GLFW_KEY_KP_3,
+            KP4 = GLFW_KEY_KP_4,
+            KP5 = GLFW_KEY_KP_5,
+            KP6 = GLFW_KEY_KP_6,
+            KP7 = GLFW_KEY_KP_7,
+            KP8 = GLFW_KEY_KP_8,
+            KP9 = GLFW_KEY_KP_9,
+
+            KPDecimal = GLFW_KEY_KP_DECIMAL,
+            KPDivide = GLFW_KEY_KP_DIVIDE,
+            KPMultiply = GLFW_KEY_KP_MULTIPLY,
+            KPSubtract = GLFW_KEY_KP_SUBTRACT,
+            KPAdd = GLFW_KEY_KP_ADD,
+            KPEnter = GLFW_KEY_KP_ENTER,
+            KPEqual = GLFW_KEY_KP_EQUAL,
+
+            LeftShift = GLFW_KEY_LEFT_SHIFT,
+            LeftControl = GLFW_KEY_LEFT_CONTROL,
+            LeftAlt = GLFW_KEY_LEFT_ALT,
+            LeftSuper = GLFW_KEY_LEFT_SUPER,
+
+            RightShift = GLFW_KEY_RIGHT_SHIFT,
+            RightControl = GLFW_KEY_RIGHT_CONTROL,
+            RightAlt = GLFW_KEY_RIGHT_ALT,
+            RightSuper = GLFW_KEY_RIGHT_SUPER,
+
+            Menu = GLFW_KEY_MENU,
+        };
+
     private:
-        static void init(GLFWwindow* window);
-        static void update();
-
         static constexpr int KEY_COUNT = GLFW_KEY_LAST + 1;
-
-        static inline bool s_Current[KEY_COUNT]{};
-        static inline bool s_Previous[KEY_COUNT]{};
-        static inline bool s_Repeat[KEY_COUNT]{};
-
-        static inline bool s_DoRepeat{true};
+        static inline bool s_States[KEY_COUNT]{};
 
     public:
         [[nodiscard]]
-        static bool IsKeyDown(int key);
-
-        [[nodiscard]]
-        static bool IsKeyPressed(int key);
-
-        [[nodiscard]]
-        static bool IsKeyReleased(int key);
-
-        [[nodiscard]]
-        static bool IsKeyTyped(int key);
-
-        static void SetKeyRepeat(bool repeat);
+        static inline bool IsKeyDown(int key) {
+            assert(key >= 0 && key < KEY_COUNT);
+            return s_States[key];
+        }
     };
 
     class Mouse final {
         friend class Window;
 
     public:
-        enum class Button {
+        enum class Button : uint8_t {
             Left = GLFW_MOUSE_BUTTON_LEFT,
             Right = GLFW_MOUSE_BUTTON_RIGHT,
             Middle = GLFW_MOUSE_BUTTON_MIDDLE,
@@ -49,34 +174,28 @@ namespace gl {
             Button5 = GLFW_MOUSE_BUTTON_5,
             Button6 = GLFW_MOUSE_BUTTON_6,
             Button7 = GLFW_MOUSE_BUTTON_7,
-            Button8 = GLFW_MOUSE_BUTTON_8
+            Button8 = GLFW_MOUSE_BUTTON_8,
         };
 
     private:
-        static void init(GLFWwindow* window);
-        static void update();
-
         static constexpr int BUTTON_COUNT = GLFW_MOUSE_BUTTON_LAST - GLFW_MOUSE_BUTTON_LEFT + 1;
-
-        static inline bool s_Current[BUTTON_COUNT]{};
-        static inline bool s_Previous[BUTTON_COUNT]{};
-
-        static inline double s_PosX = 0.0, s_PosY = 0.0;
-        static inline double s_PrevPosX = 0.0, s_PrevPosY = 0.0;
+        static inline bool s_States[BUTTON_COUNT]{};
 
     public:
-        static bool IsButtonDown(Button button);
-        static bool IsButtonPressed(Button button);
-        static bool IsButtonReleased(Button button);
+        static inline bool IsButtonDown(Button button) {
+            return s_States[static_cast<int>(button)];
+        }
 
-        static bool IsMoved();
-
-        static void SetPosition(GLFWwindow* window, Vector2<double> position);
-
-        [[nodiscard]]
-        static Vector2<double> GetPosition();
+        static inline void SetPosition(GLFWwindow* window, Vector2i position) {
+            glfwSetCursorPos(window, position.x, position.y);
+        }
 
         [[nodiscard]]
-        static Vector2<double> GetDelta();
+        static inline Vector2i GetPosition(GLFWwindow* window) noexcept {
+            double x, y;
+            glfwGetCursorPos(window, &x, &y);
+            
+            return Vector2i(x, y);
+        }
     };
 }

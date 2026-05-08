@@ -7,3 +7,4 @@
 #include "GLIM/Graphics/VideoMode.hpp"
 #include "GLIM/Graphics/View.hpp"
 #include "GLIM/Graphics/Window.hpp"
+#include "GLIM/System.hpp"
