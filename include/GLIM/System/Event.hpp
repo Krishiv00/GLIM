@@ -45,6 +45,7 @@ namespace gl {
 
         struct MouseMoved {
             Vector2i Position;
+            Vector2i Delta;
         };
 
         struct MouseEntered {};

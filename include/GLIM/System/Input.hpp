@@ -137,15 +137,15 @@ namespace gl {
             KPEnter = GLFW_KEY_KP_ENTER,
             KPEqual = GLFW_KEY_KP_EQUAL,
 
-            LeftShift = GLFW_KEY_LEFT_SHIFT,
-            LeftControl = GLFW_KEY_LEFT_CONTROL,
-            LeftAlt = GLFW_KEY_LEFT_ALT,
-            LeftSuper = GLFW_KEY_LEFT_SUPER,
+            LShift = GLFW_KEY_LEFT_SHIFT,
+            LControl = GLFW_KEY_LEFT_CONTROL,
+            LAlt = GLFW_KEY_LEFT_ALT,
+            LSuper = GLFW_KEY_LEFT_SUPER,
 
-            RightShift = GLFW_KEY_RIGHT_SHIFT,
-            RightControl = GLFW_KEY_RIGHT_CONTROL,
-            RightAlt = GLFW_KEY_RIGHT_ALT,
-            RightSuper = GLFW_KEY_RIGHT_SUPER,
+            RShift = GLFW_KEY_RIGHT_SHIFT,
+            RControl = GLFW_KEY_RIGHT_CONTROL,
+            RAlt = GLFW_KEY_RIGHT_ALT,
+            RSuper = GLFW_KEY_RIGHT_SUPER,
 
             Menu = GLFW_KEY_MENU,
         };
@@ -156,9 +156,8 @@ namespace gl {
 
     public:
         [[nodiscard]]
-        static inline bool IsKeyDown(int key) {
-            assert(key >= 0 && key < KEY_COUNT);
-            return s_States[key];
+        static inline bool IsKeyPressed(Scancode key) {
+            return s_States[static_cast<uint16_t>(key)];
         }
     };
 
@@ -178,8 +177,14 @@ namespace gl {
         };
 
     private:
+        static void init(GLFWwindow* window) {
+            s_LastPosition = GetPosition(window);
+        }
+        
         static constexpr int BUTTON_COUNT = GLFW_MOUSE_BUTTON_LAST - GLFW_MOUSE_BUTTON_LEFT + 1;
         static inline bool s_States[BUTTON_COUNT]{};
+
+        static inline Vector2i s_LastPosition;
 
     public:
         static inline bool IsButtonDown(Button button) {
@@ -188,13 +193,14 @@ namespace gl {
 
         static inline void SetPosition(GLFWwindow* window, Vector2i position) {
             glfwSetCursorPos(window, position.x, position.y);
+            s_LastPosition = position;
         }
 
         [[nodiscard]]
         static inline Vector2i GetPosition(GLFWwindow* window) noexcept {
             double x, y;
             glfwGetCursorPos(window, &x, &y);
-            
+
             return Vector2i(x, y);
         }
     };

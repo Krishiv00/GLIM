@@ -44,6 +44,11 @@ void gl::Window::registerEventCallbacks() {
 
         Window* self = static_cast<Window*>(glfwGetWindowUserPointer(w));
 
+        // remove duplicate resize events and just keep the final one
+        if (!self->m_EventQueue.empty() && self->m_EventQueue.front().is<Event::Resized>()) {
+            self->m_EventQueue.pop();
+        }
+
         self->pushEvent(Event::Resized(Vector2u(
             static_cast<unsigned int>(width),
             static_cast<unsigned int>(height)
@@ -85,7 +90,7 @@ void gl::Window::registerEventCallbacks() {
                 Helpers::ModShift(mods), Helpers::ModSuper(mods)
             ));
         }
-});
+    });
 
     // text / unicode input
     glfwSetCharCallback(m_Handle, [](GLFWwindow* w, unsigned int codepoint) {
@@ -97,7 +102,13 @@ void gl::Window::registerEventCallbacks() {
     // cursor movement
     glfwSetCursorPosCallback(m_Handle, [](GLFWwindow* w, double x, double y) {
         Window* self = static_cast<Window*>(glfwGetWindowUserPointer(w));
-        self->pushEvent(Event::MouseMoved(Mouse::GetPosition(self->m_Handle)));
+
+        const Vector2i curPos = Mouse::GetPosition(self->m_Handle);
+        const Vector2i delta = curPos - Mouse::s_LastPosition;
+
+        self->pushEvent(Event::MouseMoved(curPos, Vector2i(delta.x, -delta.y)));
+
+        Mouse::s_LastPosition = curPos;
     });
 
     // cursor enter / leave
@@ -205,6 +216,9 @@ void Window::Create(
     glFrontFace(GL_CCW);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // init input devices
+    Mouse::init(m_Handle);
 }
 
 void Window::SetSize(Vector2u size) {
