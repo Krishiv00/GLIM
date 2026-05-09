@@ -7,6 +7,77 @@
 
 using namespace gl;
 
+#pragma region Camera 2D
+
+void Camera2D::updateVpMatrix() {
+    const float w = m_Size.x / m_Zoom;
+    const float h = m_Size.y / m_Zoom;
+
+    const glm::mat4 projMat = glm::ortho(0.f, w, h, 0.f);
+
+    const glm::mat4 viewMat = glm::rotate(
+        glm::translate(glm::mat4(1.f), glm::vec3(-m_Position, 0.f)),
+        -m_Rotation, glm::vec3(0.f, 0.f, 1.f)
+    );
+
+    m_VPMat = projMat * viewMat;
+}
+
+Camera2D::Camera2D() {
+    updateVpMatrix();
+}
+
+gl::Camera2D::Camera2D(glm::vec2 position, glm::vec2 size) {
+    m_Position = position;
+    m_Size = size;
+
+    updateVpMatrix();
+}
+
+void Camera2D::Move(glm::vec2 delta) {
+    m_Position += delta;
+
+    updateVpMatrix();
+}
+
+void Camera2D::Rotate(float delta) {
+    m_Rotation = std::fmodf(m_Rotation + delta, glm::radians(360.f));
+
+    updateVpMatrix();
+}
+
+void Camera2D::Zoom(float delta) {
+    m_Zoom = glm::clamp(m_Zoom + delta, MinZoom, MaxZoom);
+
+    updateVpMatrix();
+}
+
+void Camera2D::SetPosition(glm::vec2 position) {
+    m_Position = position;
+
+    updateVpMatrix();
+}
+
+void Camera2D::SetSize(glm::vec2 size) {
+    m_Size = size;
+
+    updateVpMatrix();
+}
+
+void Camera2D::SetRotation(float rotation) {
+    m_Rotation = std::fmodf(rotation, glm::radians(360.f));
+
+    updateVpMatrix();
+}
+
+void Camera2D::SetZoom(float zoom) {
+    m_Zoom = glm::clamp(zoom, MinZoom, MaxZoom);
+
+    updateVpMatrix();
+}
+
+#pragma region Camera 3D
+
 void Camera3D::clampRotation() {
     m_Rotation.x = std::fmodf(m_Rotation.x, glm::radians<float>(360.f));
     m_Rotation.y = glm::clamp(m_Rotation.y, -MaxPitch, MaxPitch);
@@ -32,6 +103,15 @@ void Camera3D::updateVpMatrix() {
 }
 
 Camera3D::Camera3D() {
+    clampRotation();
+    updateForward();
+    updateVpMatrix();
+}
+
+gl::Camera3D::Camera3D(glm::vec3 position, glm::vec2 rotation) {
+    m_Position = position;
+    m_Rotation = rotation;
+
     clampRotation();
     updateForward();
     updateVpMatrix();

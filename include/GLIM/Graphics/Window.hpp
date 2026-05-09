@@ -6,7 +6,6 @@
 #include "GLFW/glfw3.h"
 
 #include "GLIM/Graphics/Color.hpp"
-#include "GLIM/Graphics/View.hpp"
 #include "GLIM/Graphics/VideoMode.hpp"
 #include "GLIM/System/Event.hpp"
 
@@ -22,6 +21,10 @@ namespace gl {
         Windowed, Fullscreen
     };
 
+    enum class Mode {
+        Mode2D, Mode3D
+    };
+
     class Window final {
     private:
         void pushEvent(Event event);
@@ -33,6 +36,7 @@ namespace gl {
         // state
         bool m_Fullscreen{false};
         bool m_Vsync{false};
+        bool m_KeyRepeatEnabled{true};
 
         // before fullscreen toggled
         Vector2u m_LastSize;
@@ -40,15 +44,13 @@ namespace gl {
 
         std::queue<Event> m_EventQueue;
 
-        View m_View;
-
         float m_TargetFrameTime{0.f};
 
         Clock m_FrameClock;
 
     public:
         Window(
-            unsigned int width, unsigned int height, const char* title,
+            unsigned int width, unsigned int height, const char* title, Mode mode,
             Style style = Style::Default, State state = State::Windowed
         );
 
@@ -59,7 +61,7 @@ namespace gl {
         Window& operator=(const Window&) = delete;
 
         void Create(
-            unsigned int width, unsigned int height, const char* title,
+            unsigned int width, unsigned int height, const char* title, Mode mode,
             Style style = Style::Default, State state = State::Windowed
         );
 
@@ -77,6 +79,8 @@ namespace gl {
 
         void SetVsync(bool vsync);
 
+        void SetKeyRepeatEnabled(bool state);
+
         void SetFullscreen(bool fullscreen);
 
         [[nodiscard]]
@@ -87,8 +91,6 @@ namespace gl {
         void Display();
 
         void Close();
-
-        void SetView(const View& view);
 
         [[nodiscard]]
         Vector2u GetSize() const;
@@ -107,11 +109,6 @@ namespace gl {
         [[nodiscard]]
         inline bool GetFullscreen() const noexcept {
             return m_Fullscreen;
-        }
-
-        [[nodiscard]]
-        inline const View& GetView() const noexcept {
-            return m_View;
         }
 
         operator GLFWwindow* () const {

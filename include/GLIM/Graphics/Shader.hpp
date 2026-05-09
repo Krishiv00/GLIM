@@ -42,7 +42,7 @@ namespace gl {
             gl::UniformTraits<T, sizeof...(Args)>::Set(location, args...);
         }
 
-        inline void SetUniform(const std::string& name, const Camera3D& camera) const {
+        inline void SetUniform(const std::string& name, const Camera& camera) const {
             SetUniform<glm::mat4>(name, camera.GetVP());
         }
 
@@ -50,5 +50,10 @@ namespace gl {
         bool LoadFromFile(const std::filesystem::path& vertFilepath, const std::filesystem::path& fragFilepath);
 
         void Use() const;
+
+        [[nodiscard]]
+        inline unsigned int GetId() const noexcept {
+            return m_Handle;
+        }
     };
 }

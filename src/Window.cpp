@@ -69,7 +69,7 @@ void gl::Window::registerEventCallbacks() {
 
         Window* self = static_cast<Window*>(glfwGetWindowUserPointer(w));
 
-        if (action == GLFW_PRESS) {
+        if (action == GLFW_PRESS || (self->m_KeyRepeatEnabled && action == GLFW_REPEAT)) {
             if (key < Keyboard::KEY_COUNT) {
                 Keyboard::s_States[key] = true;
             }
@@ -147,10 +147,10 @@ void gl::Window::registerEventCallbacks() {
 }
 
 Window::Window(
-    unsigned int width, unsigned int height, const char* title,
+    unsigned int width, unsigned int height, const char* title, Mode mode,
     Style style, State state
 ) {
-    Create(width, height, title, style, state);
+    Create(width, height, title, mode, style, state);
 }
 
 Window::~Window() {
@@ -161,7 +161,7 @@ Window::~Window() {
 }
 
 void Window::Create(
-    unsigned int width, unsigned int height, const char* title,
+    unsigned int width, unsigned int height, const char* title, Mode mode,
     Style style, State state
 ) {
     // init glfw
@@ -183,8 +183,6 @@ void Window::Create(
         glfwTerminate();
         throw std::runtime_error("failed to create window");
     }
-
-    m_View = View(0.f, 0.f, static_cast<float>(width), static_cast<float>(height));
 
     m_Fullscreen = state == State::Fullscreen;
 
@@ -210,10 +208,16 @@ void Window::Create(
     glewInit();
 
     // configure
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
+    if (mode == Mode::Mode3D) {
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glFrontFace(GL_CCW);
+    } else if (mode == Mode::Mode2D) {
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+    }
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -265,6 +269,10 @@ void Window::SetVsync(bool vsync) {
     glfwSwapInterval(vsync);
 }
 
+void gl::Window::SetKeyRepeatEnabled(bool state) {
+    m_KeyRepeatEnabled = state;
+}
+
 void Window::SetFullscreen(bool fullscreen) {
     if (fullscreen == m_Fullscreen) return;
 
@@ -284,12 +292,6 @@ void Window::SetFullscreen(bool fullscreen) {
             m_Handle, nullptr, m_LastPosition.x, m_LastPosition.y,
             static_cast<int>(m_LastSize.x), static_cast<int>(m_LastSize.y),
             0
-        );
-
-        m_View = View(
-            0.f, 0.f,
-            static_cast<float>(m_LastSize.x),
-            static_cast<float>(m_LastSize.y)
         );
     }
 
@@ -336,10 +338,6 @@ void Window::Display() {
 
 void Window::Close() {
     if (m_Handle) glfwSetWindowShouldClose(m_Handle, true);
-}
-
-void Window::SetView(const View& view) {
-    m_View = view;
 }
 
 Vector2u Window::GetSize() const {
