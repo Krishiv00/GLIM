@@ -213,6 +213,8 @@ void Window::Create(
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
         glFrontFace(GL_CCW);
+
+        SetMouseVisible(false);
     } else if (mode == Mode::Mode2D) {
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);

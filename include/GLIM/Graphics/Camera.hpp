@@ -2,6 +2,9 @@
 
 #include "glm/glm.hpp"
 
+#include "GLIM/System/Vector2.hpp"
+#include "GLIM/System/Vector3.hpp"
+
 namespace gl {
     class Camera {
     protected:
@@ -22,25 +25,25 @@ namespace gl {
     private:
         void updateVpMatrix();
 
-        glm::vec2 m_Position{0.f, 0.f};
-        glm::vec2 m_Size{1.f, 1.f};
+        Vector2f m_Position{0.f, 0.f};
+        Vector2f m_Size{1.f, 1.f};
 
         float m_Rotation{0.f};
         float m_Zoom{1.f};
 
     public:
         Camera2D();
-        Camera2D(glm::vec2 position, glm::vec2 size);
+        Camera2D(Vector2f position, Vector2f size);
 
-        void Move(glm::vec2 delta);
+        void Move(Vector2f delta);
 
         void Rotate(float delta);
 
         void Zoom(float delta);
 
-        void SetPosition(glm::vec2 position);
+        void SetPosition(Vector2f position);
 
-        void SetSize(glm::vec2 size);
+        void SetSize(Vector2f size);
 
         void SetRotation(float rotation);
 
@@ -52,24 +55,24 @@ namespace gl {
         }
 
         [[nodiscard]]
-        inline glm::vec2 GetPosition() const noexcept {
+        inline Vector2f GetPosition() const noexcept {
             return m_Position;
+        }
+
+        [[nodiscard]]
+        inline Vector2f GetSize() const noexcept {
+            return m_Size;
         }
 
         [[nodiscard]]
         inline float GetZoom() const noexcept {
             return m_Zoom;
         }
-
-        [[nodiscard]]
-        inline glm::vec2 GetSize() const noexcept {
-            return m_Size;
-        }
     };
 
     class Camera3D : public Camera {
     public:
-        static constexpr inline const glm::vec3 Up = glm::vec3(0.f, 1.f, 0.f);
+        static constexpr inline const Vector3f Up = Vector3f(0.f, 1.f, 0.f);
         static constexpr inline const float MaxPitch = glm::radians<float>(89.f);
 
     private:
@@ -77,10 +80,10 @@ namespace gl {
         void updateForward();
         void updateVpMatrix();
 
-        glm::vec2 m_Rotation{0.f, 0.f};
-        glm::vec3 m_Position{0.f, 0.f, 0.f};
+        Vector2f m_Rotation{0.f, 0.f};
+        Vector3f m_Position{0.f, 0.f, 0.f};
 
-        glm::vec3 m_Forward;
+        Vector3f m_Forward;
 
         float m_FOV{glm::radians<float>(60.f)};
         float m_Aspect{1.f};
@@ -89,15 +92,15 @@ namespace gl {
 
     public:
         Camera3D();
-        Camera3D(glm::vec3 position, glm::vec2 rotation);
+        Camera3D(Vector3f position, Vector2f rotation);
 
-        void Move(glm::vec3 delta);
+        void Move(Vector3f delta);
 
-        void Rotate(glm::vec2 delta);
+        void Rotate(Vector2f delta);
 
-        void SetPosition(glm::vec3 position);
+        void SetPosition(Vector3f position);
 
-        void SetRotation(glm::vec2 rotation);
+        void SetRotation(Vector2f rotation);
 
         void SetFov(unsigned int fov);
 
@@ -106,23 +109,23 @@ namespace gl {
         void SetClipping(float near, float far);
 
         [[nodiscard]]
-        glm::vec3 GetRight() const;
+        Vector3f GetRight() const;
 
         [[nodiscard]]
-        glm::vec3 GetFront() const;
+        Vector3f GetFront() const;
 
         [[nodiscard]]
-        inline glm::vec2 GetRotation() const noexcept {
+        inline Vector2f GetRotation() const noexcept {
             return m_Rotation;
         }
 
         [[nodiscard]]
-        inline glm::vec3 GetPosition() const noexcept {
+        inline Vector3f GetPosition() const noexcept {
             return m_Position;
         }
 
         [[nodiscard]]
-        inline glm::vec3 GetForward() const noexcept {
+        inline Vector3f GetForward() const noexcept {
             return m_Forward;
         }
     };

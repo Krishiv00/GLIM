@@ -58,6 +58,10 @@ static bool CheckProgramLink(GLuint program) {
 
 #endif
 
+gl::Shader::Shader(const std::filesystem::path& vertFilepath, const std::filesystem::path& fragFilepath) {
+    (void)LoadFromFile(vertFilepath, fragFilepath);
+}
+
 Shader::~Shader() {
     if (m_Handle) glDeleteProgram(m_Handle);
 }
@@ -121,6 +125,8 @@ bool Shader::LoadFromFile(const std::filesystem::path& vertFilepath, const std::
     // cleanup
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+
+    Use();
 
     return true;
 }

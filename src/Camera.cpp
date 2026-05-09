@@ -5,6 +5,16 @@
 
 #include "GLIM/Graphics/Camera.hpp"
 
+namespace {
+    static constexpr inline glm::vec2 ToGlm(gl::Vector2f v) noexcept {
+        return glm::vec2(v.x, v.y);
+    }
+
+    static constexpr inline glm::vec3 ToGlm(gl::Vector3f v) noexcept {
+        return glm::vec3(v.x, v.y, v.z);
+    }
+}
+
 using namespace gl;
 
 #pragma region Camera 2D
@@ -16,7 +26,7 @@ void Camera2D::updateVpMatrix() {
     const glm::mat4 projMat = glm::ortho(0.f, w, h, 0.f);
 
     const glm::mat4 viewMat = glm::rotate(
-        glm::translate(glm::mat4(1.f), glm::vec3(-m_Position, 0.f)),
+        glm::translate(glm::mat4(1.f), glm::vec3(ToGlm(-m_Position), 0.f)),
         -m_Rotation, glm::vec3(0.f, 0.f, 1.f)
     );
 
@@ -27,14 +37,14 @@ Camera2D::Camera2D() {
     updateVpMatrix();
 }
 
-gl::Camera2D::Camera2D(glm::vec2 position, glm::vec2 size) {
+gl::Camera2D::Camera2D(Vector2f position, Vector2f size) {
     m_Position = position;
     m_Size = size;
 
     updateVpMatrix();
 }
 
-void Camera2D::Move(glm::vec2 delta) {
+void Camera2D::Move(Vector2f delta) {
     m_Position += delta;
 
     updateVpMatrix();
@@ -52,13 +62,13 @@ void Camera2D::Zoom(float delta) {
     updateVpMatrix();
 }
 
-void Camera2D::SetPosition(glm::vec2 position) {
+void Camera2D::SetPosition(Vector2f position) {
     m_Position = position;
 
     updateVpMatrix();
 }
 
-void Camera2D::SetSize(glm::vec2 size) {
+void Camera2D::SetSize(Vector2f size) {
     m_Size = size;
 
     updateVpMatrix();
@@ -84,20 +94,22 @@ void Camera3D::clampRotation() {
 }
 
 void Camera3D::updateForward() {
-    const float cos_y = glm::cos(m_Rotation.x);
-    const float sin_y = glm::sin(m_Rotation.x);
+    const float cos_y = std::cos(m_Rotation.x);
+    const float sin_y = std::sin(m_Rotation.x);
 
-    const float cos_p = glm::cos(m_Rotation.y);
-    const float sin_p = glm::sin(m_Rotation.y);
+    const float cos_p = std::cos(m_Rotation.y);
+    const float sin_p = std::sin(m_Rotation.y);
 
-    m_Forward = glm::normalize(glm::vec3(
+    m_Forward = Vector3f(
         cos_y * cos_p, sin_p, sin_y * cos_p
-    ));
+    ).Normalize();
 }
 
 void Camera3D::updateVpMatrix() {
     const glm::mat4 projectionMat = glm::perspective(m_FOV, m_Aspect, m_Near, m_Far);
-    const glm::mat4 viewMat = glm::lookAt(m_Position, m_Position + m_Forward, Up);
+
+    const glm::vec3 pos = ToGlm(m_Position);
+    const glm::mat4 viewMat = glm::lookAt(pos, pos + ToGlm(m_Forward), ToGlm(Up));
 
     m_VPMat = projectionMat * viewMat;
 }
@@ -108,7 +120,7 @@ Camera3D::Camera3D() {
     updateVpMatrix();
 }
 
-gl::Camera3D::Camera3D(glm::vec3 position, glm::vec2 rotation) {
+gl::Camera3D::Camera3D(Vector3f position, Vector2f rotation) {
     m_Position = position;
     m_Rotation = rotation;
 
@@ -117,13 +129,13 @@ gl::Camera3D::Camera3D(glm::vec3 position, glm::vec2 rotation) {
     updateVpMatrix();
 }
 
-void Camera3D::Move(glm::vec3 delta) {
+void Camera3D::Move(Vector3f delta) {
     m_Position += delta;
 
     updateVpMatrix();
 }
 
-void Camera3D::Rotate(glm::vec2 delta) {
+void Camera3D::Rotate(Vector2f delta) {
     m_Rotation += delta;
 
     clampRotation();
@@ -131,13 +143,13 @@ void Camera3D::Rotate(glm::vec2 delta) {
     updateVpMatrix();
 }
 
-void Camera3D::SetPosition(glm::vec3 position) {
+void Camera3D::SetPosition(Vector3f position) {
     m_Position = position;
 
     updateVpMatrix();
 }
 
-void Camera3D::SetRotation(glm::vec2 rotation) {
+void Camera3D::SetRotation(Vector2f rotation) {
     m_Rotation = rotation;
 
     clampRotation();
@@ -164,10 +176,10 @@ void Camera3D::SetClipping(float near, float far) {
     updateVpMatrix();
 }
 
-glm::vec3 Camera3D::GetRight() const {
-    return glm::normalize(glm::cross(m_Forward, Up));
+Vector3f Camera3D::GetRight() const {
+    return m_Forward.Cross(Up).Normalize();
 }
 
-glm::vec3 gl::Camera3D::GetFront() const {
-    return glm::normalize(glm::vec3(m_Forward.x, 0.f, m_Forward.z));
+Vector3f gl::Camera3D::GetFront() const {
+    return Vector3f(m_Forward.x, 0.f, m_Forward.z).Normalize();
 }

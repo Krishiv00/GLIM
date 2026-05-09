@@ -14,6 +14,8 @@ namespace gl {
 
     public:
         Shader() = default;
+        Shader(const std::filesystem::path& vertFilepath, const std::filesystem::path& fragFilepath);
+
         ~Shader();
 
         Shader(const Shader&) = delete;

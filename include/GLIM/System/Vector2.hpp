@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <cmath>
 
 namespace gl {
     template <typename T>
@@ -9,7 +10,7 @@ namespace gl {
         constexpr Vector2(T _x, T _y) : x(_x), y(_y) {}
 
         template <typename U>
-        constexpr Vector2(Vector2<U> vec) : x(static_cast<T>(vec.x)), y(static_cast<T>(vec.y)) {}
+        constexpr Vector2(const Vector2<U>& vec) : x(static_cast<T>(vec.x)), y(static_cast<T>(vec.y)) {}
 
         [[nodiscard]]
         constexpr Vector2<T> operator+(const Vector2<T>& rhs) const {
@@ -88,6 +89,38 @@ namespace gl {
         [[nodiscard]]
         constexpr bool operator!=(const Vector2<T>& rhs) const {
             return !(*this == rhs);
+        }
+
+        [[nodiscard]]
+        constexpr T Dot(const Vector2<T>& rhs) const {
+            return x * rhs.x + y * rhs.y;
+        }
+
+        [[nodiscard]]
+        constexpr T Cross(const Vector2<T>& rhs) const {
+            return x * rhs.y - y * rhs.x;
+        }
+
+        [[nodiscard]]
+        T LengthSquared() const {
+            return x * x + y * y;
+        }
+
+        [[nodiscard]]
+        T Length() const {
+            return std::sqrt(LengthSquared());
+        }
+
+        [[nodiscard]]
+        Vector2<T> Normalize() const {
+            const T len = Length();
+
+            assert(len != 0 && "normalizing zero vector");
+
+            return {
+                x / len,
+                y / len
+            };
         }
 
         T x{T(0)}, y{T(0)};

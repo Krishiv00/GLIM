@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <cmath>
 
 namespace gl {
     template <typename T>
@@ -10,7 +11,7 @@ namespace gl {
         constexpr Vector3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
 
         template <typename U>
-        constexpr Vector3(Vector3<U> vec)
+        constexpr Vector3(const Vector3<U>& vec)
             : x(static_cast<T>(vec.x)), y(static_cast<T>(vec.y)), z(static_cast<T>(vec.z)) {}
 
         [[nodiscard]]
@@ -93,6 +94,43 @@ namespace gl {
 
         constexpr bool operator!=(const Vector3<T>& rhs) const {
             return !(*this == rhs);
+        }
+
+        [[nodiscard]]
+        constexpr T Dot(const Vector3<T>& rhs) const {
+            return x * rhs.x + y * rhs.y + z * rhs.z;
+        }
+
+        [[nodiscard]]
+        constexpr Vector3<T> Cross(const Vector3<T>& rhs) const {
+            return {
+                y * rhs.z - z * rhs.y,
+                z * rhs.x - x * rhs.z,
+                x * rhs.y - y * rhs.x
+            };
+        }
+
+        [[nodiscard]]
+        T LengthSquared() const {
+            return x * x + y * y + z * z;
+        }
+
+        [[nodiscard]]
+        T Length() const {
+            return std::sqrt(LengthSquared());
+        }
+
+        [[nodiscard]]
+        Vector3<T> Normalize() const {
+            const T len = Length();
+
+            assert(len != 0 && "normalizing zero vector");
+
+            return {
+                x / len,
+                y / len,
+                z / len
+            };
         }
 
         T x{T(0)}, y{T(0)}, z{T(0)};
