@@ -41,7 +41,7 @@ namespace gl {
             const GLint location = glGetUniformLocation(m_Handle, name.c_str());
             if (location == -1) return;
 
-            gl::UniformTraits<T, sizeof...(Args)>::Set(location, args...);
+            UniformTraits<T, sizeof...(Args)>::Set(location, args...);
         }
 
         inline void SetUniform(const std::string& name, const Camera& camera) const {

@@ -187,7 +187,7 @@ namespace gl {
         static inline Vector2i s_LastPosition;
 
     public:
-        static inline bool IsButtonDown(Button button) {
+        static inline bool IsButtonPressed(Button button) {
             return s_States[static_cast<int>(button)];
         }
 

@@ -37,7 +37,7 @@ Camera2D::Camera2D() {
     updateVpMatrix();
 }
 
-gl::Camera2D::Camera2D(Vector2f position, Vector2f size) {
+Camera2D::Camera2D(Vector2f position, Vector2f size) {
     m_Position = position;
     m_Size = size;
 
@@ -120,7 +120,7 @@ Camera3D::Camera3D() {
     updateVpMatrix();
 }
 
-gl::Camera3D::Camera3D(Vector3f position, Vector2f rotation) {
+Camera3D::Camera3D(Vector3f position, Vector2f rotation) {
     m_Position = position;
     m_Rotation = rotation;
 
@@ -180,6 +180,6 @@ Vector3f Camera3D::GetRight() const {
     return m_Forward.Cross(Up).Normalize();
 }
 
-Vector3f gl::Camera3D::GetFront() const {
+Vector3f Camera3D::GetFront() const {
     return Vector3f(m_Forward.x, 0.f, m_Forward.z).Normalize();
 }

@@ -31,7 +31,7 @@ namespace gl {
         mutable bool m_Dirty{true};
 
     public:
-        VertexArray(gl::PrimitiveType primitiveType);
+        VertexArray(PrimitiveType primitiveType);
 
         ~VertexArray();
 
@@ -46,7 +46,7 @@ namespace gl {
 
             m_Layout.push_back({
                 .Count = count,
-                .Type = gl::TypeTraits<T>::Type,
+                .Type = TypeTraits<T>::Type,
                 .Offset = m_Stride,
                 .Normalized = normalized
             });
@@ -67,7 +67,7 @@ namespace gl {
             m_Dirty = true;
         }
 
-        void SetPrimitiveType(gl::PrimitiveType type);
+        void SetPrimitiveType(PrimitiveType type);
 
         void Clear();
 

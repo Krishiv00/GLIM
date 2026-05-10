@@ -33,7 +33,7 @@ void Window::pushEvent(Event event) {
     m_EventQueue.push(std::move(event));
 }
 
-void gl::Window::registerEventCallbacks() {
+void Window::registerEventCallbacks() {
     assert(m_Handle && "window not created yet");
 
     glfwSetWindowUserPointer(m_Handle, this);
@@ -271,7 +271,7 @@ void Window::SetVsync(bool vsync) {
     glfwSwapInterval(vsync);
 }
 
-void gl::Window::SetKeyRepeatEnabled(bool state) {
+void Window::SetKeyRepeatEnabled(bool state) {
     m_KeyRepeatEnabled = state;
 }
 

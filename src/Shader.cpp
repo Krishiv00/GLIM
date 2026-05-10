@@ -58,7 +58,7 @@ static bool CheckProgramLink(GLuint program) {
 
 #endif
 
-gl::Shader::Shader(const std::filesystem::path& vertFilepath, const std::filesystem::path& fragFilepath) {
+Shader::Shader(const std::filesystem::path& vertFilepath, const std::filesystem::path& fragFilepath) {
     (void)LoadFromFile(vertFilepath, fragFilepath);
 }
 
