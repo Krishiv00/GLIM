@@ -86,7 +86,7 @@ AudioDevice::AudioDevice() {
     m_PollThread = std::thread([this] {
         while (!m_StopPoll.load()) {
             std::this_thread::sleep_for(std::chrono::seconds(DeviceChangeCheckInterval));
-            
+
             if (!m_StopPoll.load()) checkDeviceChange();
         }
     });

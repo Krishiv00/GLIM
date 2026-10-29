@@ -48,8 +48,8 @@ gl::Shader shader("vert.glsl", "frag.glsl");
 
 gl::VertexArray vertices(gl::PrimitiveType::Triangles);
 
-vertices.PushLayout<float>(3); // position
-vertices.PushLayout<float>(3); // color
+vertices.PushLayout<float>(3); // position: 3 floats
+vertices.PushLayout<float>(3); // color: 3 floats
 
 vertices.Append(
     -0.5f, -0.5f, 0.f, 1.f, 0.f, 0.f,
@@ -144,8 +144,8 @@ gl::Window window(1280, 720, "Title", gl::Mode::Mode2D);
 | `GetSize()` | Returns `Vector2u` |
 | `GetPosition()` | Returns `Vector2i` |
 
-**Modes:** `gl::Mode::Mode2D`, `gl::Mode::Mode3D`  
-**Styles:** `gl::Style::Default`, `gl::Style::Close`  
+**Modes:** `gl::Mode::Mode2D`, `gl::Mode::Mode3D`
+**Styles:** `gl::Style::Default`, `gl::Style::Close`
 **States:** `gl::State::Windowed`, `gl::State::Fullscreen`
 
 ---
@@ -187,9 +187,6 @@ gl::Vector2i pos = gl::Mouse::GetPosition(window);
 gl::Mouse::SetPosition(window, {640, 360});
 ```
 
-**Common scancodes:** `W A S D`, `Up Down Left Right`, `Space`, `Escape`, `Enter`, `LShift`, `LControl`, `F1`–`F25`, `KP0`–`KP9`  
-**Mouse buttons:** `Left`, `Right`, `Middle`, `Button4`–`Button8`
-
 ---
 
 ### `gl::Shader`
@@ -199,8 +196,8 @@ Loads and owns a GLSL program. Uniforms are set via a type-safe templated API.
 ```cpp
 gl::Shader shader("vert.glsl", "frag.glsl");
 
-shader.SetUniform<float>("u_Time", 1.f);
-shader.SetUniform<glm::vec3>("u_Color", color);
+shader.SetUniform("u_Time", 1.f);
+shader.SetUniform("u_Color", color);
 shader.SetUniform("u_Camera", camera);
 ```
 
@@ -222,8 +219,8 @@ CPU-side vertex buffer with automatic stride and attribute management.
 ```cpp
 gl::VertexArray vertices(gl::PrimitiveType::Triangles);
 
-vertices.PushLayout<float>(3); // position
-vertices.PushLayout<float>(2); // tex pos
+vertices.PushLayout<float>(3); // position: 3 floats
+vertices.PushLayout<float>(2); // tex pos: 2 floats
 
 vertices.Append(
     0.f, 0.f, 0.f, 0.f, 0.f,
@@ -349,7 +346,7 @@ float len = a.Length();
 gl::Vector2f n = a.Normalize();
 ```
 
-**Operators:** `+`, `-`, `*` (scalar), `/`, `+=`, `-=`, `*=`, `/=`, `==`, `!=`, unary `-`  
+**Operators:** `+`, `-`, `*` (scalar), `/`, `+=`, `-=`, `*=`, `/=`, `==`, `!=`, unary `-`
 **Methods:** `Dot`, `Cross`, `Length`, `LengthSquared`, `Normalize`
 
 ---
@@ -415,7 +412,7 @@ gl::VideoMode desktop = gl::VideoMode::GetDesktopMode();
 
 2D and 3D shape structs with a symmetric `Intersects()` overload for every pair.
 
-**2D:** `Rectangle`, `Circle`, `Triangle`, `Polygon2D`, `Line2D`, `Point2D`  
+**2D:** `Rectangle`, `Circle`, `Triangle`, `Polygon2D`, `Line2D`, `Point2D`
 **3D:** `Cuboid`, `Sphere`, `Cone`, `Cylinder`, `Polygon3D`, `Line3D`, `Point3D`
 
 ```cpp
@@ -424,8 +421,6 @@ gl::Rectangle wall{{0.f, 0.f}, {800.f, 20.f}};
 
 if (gl::Intersects(ball, wall)) { /* resolve */ }
 ```
-
-Both argument orders are supported - `Intersects(a, b)` and `Intersects(b, a)`.
 
 ---
 
@@ -485,7 +480,7 @@ GLIM/include/
 Link flags:
 
 ```
-LXXFLAGS := -lglim -lopengl32 -lglew32 -lglfw3 -lOpenAL32
+LXXFLAGS := -lglim -lopengl32 -lglew32 -lgdi32 -lglfw3 -lOpenAL32
 ```
 
 ### Dependencies

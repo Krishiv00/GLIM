@@ -4,3 +4,4 @@
 #include "GLIM/System/Clock.hpp"
 #include "GLIM/System/Profiler.hpp"
 #include "GLIM/System/Shapes.hpp"
+#include "GLIM/System/Clipboard.hpp"

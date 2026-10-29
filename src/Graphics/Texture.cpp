@@ -1,5 +1,6 @@
 #include <cassert>
 #include <vector>
+#include <cstring>
 
 #include "GLIM/Graphics/Texture.hpp"
 
@@ -14,8 +15,13 @@ Texture::~Texture() {
     if (m_Handle) glDeleteTextures(1, &m_Handle);
 }
 
+void Texture::SetBinding(unsigned int binding) {
+    m_Binding = binding;
+}
+
 void Texture::Bind() const {
     assert(m_Handle && "texture has not been loaded yet");
+    glActiveTexture(GL_TEXTURE0 + m_Binding);
     glBindTexture(GL_TEXTURE_2D, m_Handle);
 }
 
@@ -88,6 +94,10 @@ GpuTexture::~GpuTexture() {
     if (m_Handle) glDeleteTextures(1, &m_Handle);
 }
 
+void GpuTexture::SetBinding(unsigned int binding) {
+    m_Binding = binding;
+}
+
 void GpuTexture::Bind() const {
     assert(m_Handle && "image has not been loaded yet");
     glBindTexture(GL_TEXTURE_2D, m_Handle);
@@ -136,4 +146,78 @@ void GpuTexture::SetRepeated(bool repeated) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode);
+}
+
+#pragma region Cubemap
+
+CubemapTexture::~CubemapTexture() {
+    if (m_Handle) glDeleteTextures(1, &m_Handle);
+}
+
+void CubemapTexture::SetBinding(unsigned int binding) {
+    m_Binding = binding;
+}
+
+void CubemapTexture::Bind() const {
+    assert(m_Handle && "cubemap has not been loaded yet");
+    glActiveTexture(GL_TEXTURE0 + m_Binding);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_Handle);
+}
+
+bool CubemapTexture::LoadFromFile(const std::filesystem::path& filepath) {
+    stbi_set_flip_vertically_on_load(false);
+
+    int w, h, nc;
+    uint8_t* data = stbi_load(filepath.string().c_str(), &w, &h, &nc, 4);
+    if (!data) return false;
+
+    int faceW = w / 4;
+    int faceH = h / 3;
+
+    const int faceOffsets[6][2] = {
+        {2, 1}, // +X
+        {0, 1}, // -X
+        {1, 0}, // +Y
+        {1, 2}, // -Y
+        {1, 1}, // +Z
+        {3, 1}, // -Z
+    };
+
+    if (m_Handle) glDeleteTextures(1, &m_Handle);
+    glGenTextures(1, &m_Handle);
+    Bind();
+
+    std::vector<uint8_t> face(faceW * faceH * 4);
+
+    for (int i = 0; i < 6; ++i) {
+        const int ox = faceOffsets[i][0] * faceW;
+        const int oy = faceOffsets[i][1] * faceH;
+
+        for (int row = 0; row < faceH; ++row) {
+            const uint8_t* src = data + ((oy + row) * w + ox) * 4;
+            uint8_t* dst = face.data() + row * faceW * 4;
+            std::memcpy(dst, src, faceW * 4);
+        }
+
+        glTexImage2D(
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+            0, GL_RGBA, faceW, faceH, 0, GL_RGBA, GL_UNSIGNED_BYTE, face.data()
+        );
+    }
+
+    SetSmooth(true);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    stbi_image_free(data);
+
+    return true;
+}
+
+void CubemapTexture::SetSmooth(bool smooth) {
+    Bind();
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, smooth ? GL_LINEAR : GL_NEAREST);
 }

@@ -1,10 +1,13 @@
 .vscode
+.zed
+
 build/
 lib/
+bin/
+
 include/GL/
 include/GLFW/
 include/glm/
 include/STB/
 include/MMP3/
 include/AL/
-Makefile

@@ -180,7 +180,7 @@ namespace gl {
         static void init(GLFWwindow* window) {
             s_LastPosition = GetPosition(window);
         }
-        
+
         static constexpr int BUTTON_COUNT = GLFW_MOUSE_BUTTON_LAST - GLFW_MOUSE_BUTTON_LEFT + 1;
         static inline bool s_States[BUTTON_COUNT]{};
 

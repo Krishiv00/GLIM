@@ -40,7 +40,7 @@ void Sound::loadMP3() {
         static_cast<ALsizei>(mp3.Samples.size() * sizeof(int16_t)),
         mp3.Header.SampleRate
     );
-    
+
     alSourcei(m_Source, AL_BUFFER, static_cast<ALint>(m_Buffer));
 }
 

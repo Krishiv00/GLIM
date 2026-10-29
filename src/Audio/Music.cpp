@@ -30,7 +30,7 @@ void Music::seekToSeconds(float seconds) {
         const uint64_t sample = static_cast<uint64_t>(
             seconds * static_cast<float>(m_Header.SampleRate)
         );
-        
+
         mp3dec_ex_seek(&m_Mp3stream, sample);
     }
 }

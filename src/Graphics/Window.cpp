@@ -106,7 +106,7 @@ void Window::registerEventCallbacks() {
         const Vector2i curPos = Mouse::GetPosition(self->m_Handle);
         const Vector2i delta = curPos - Mouse::s_LastPosition;
 
-        self->pushEvent(Event::MouseMoved(curPos, Vector2i(delta.x, -delta.y)));
+        self->pushEvent(Event::MouseMoved(curPos, delta));
 
         Mouse::s_LastPosition = curPos;
     });
@@ -225,6 +225,9 @@ void Window::Create(
 
     // init input devices
     Mouse::init(m_Handle);
+
+    Clear();
+    Display();
 }
 
 void Window::SetSize(Vector2u size) {

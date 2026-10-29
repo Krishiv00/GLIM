@@ -87,7 +87,7 @@ bool Shader::LoadFromFile(const std::filesystem::path& vertFilepath, const std::
     if (!CheckShaderCompile(vertexShader, "VERTEX")) {
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
-        
+
         return false;
     }
 #endif
@@ -101,7 +101,7 @@ bool Shader::LoadFromFile(const std::filesystem::path& vertFilepath, const std::
     if (!CheckShaderCompile(fragmentShader, "FRAGMENT")) {
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
-        
+
         return false;
     }
 #endif

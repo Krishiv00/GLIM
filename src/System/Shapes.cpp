@@ -1095,7 +1095,7 @@ bool gl::Intersects(const Polygon3D& a, const Polygon3D& b) {
     for (const auto& [a0, a1] : edgesA) {
         if (Helper::LineIntersectsPolygon(a0, a1, b)) return true;
     }
-    
+
     for (const auto& [b0, b1] : edgesB) {
         if (Helper::LineIntersectsPolygon(b0, b1, a)) return true;
     }

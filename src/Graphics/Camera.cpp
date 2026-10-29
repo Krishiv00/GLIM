@@ -183,3 +183,7 @@ Vector3f Camera3D::GetRight() const {
 Vector3f Camera3D::GetFront() const {
     return Vector3f(m_Forward.x, 0.f, m_Forward.z).Normalize();
 }
+
+Vector3f Camera3D::GetUp() const {
+    return GetRight().Cross(m_Forward).Normalize();
+}

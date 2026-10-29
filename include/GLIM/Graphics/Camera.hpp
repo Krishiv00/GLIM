@@ -72,8 +72,10 @@ namespace gl {
 
     class Camera3D : public Camera {
     public:
-        static constexpr inline const Vector3f Up = Vector3f(0.f, 1.f, 0.f);
         static constexpr inline const float MaxPitch = glm::radians<float>(89.f);
+
+    protected:
+        static constexpr inline const Vector3f Up = Vector3f(0.f, 1.f, 0.f);
 
     private:
         void clampRotation();
@@ -113,6 +115,9 @@ namespace gl {
 
         [[nodiscard]]
         Vector3f GetFront() const;
+
+        [[nodiscard]]
+        Vector3f GetUp() const;
 
         [[nodiscard]]
         inline Vector2f GetRotation() const noexcept {

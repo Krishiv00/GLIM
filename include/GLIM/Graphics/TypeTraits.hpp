@@ -4,6 +4,9 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "GLIM/System/Vector2.hpp"
+#include "GLIM/System/Vector3.hpp"
+
 namespace gl {
 #pragma region Types
 
@@ -111,6 +114,27 @@ namespace gl {
     struct UniformTraits<unsigned int, 4> {
         static void Set(GLint loc, unsigned int v0, unsigned int v1, unsigned int v2, unsigned int v3) {
             glUniform4ui(loc, v0, v1, v2, v3);
+        }
+    };
+
+    template<>
+    struct UniformTraits<Vector2f, 1> {
+        static void Set(GLint loc, Vector2f vec) {
+            glUniform2f(loc, vec.x, vec.y);
+        }
+    };
+
+    template<>
+    struct UniformTraits<glm::vec2, 1> {
+        static void Set(GLint loc, glm::vec2 vec) {
+            glUniform2f(loc, vec.x, vec.y);
+        }
+    };
+
+    template<>
+    struct UniformTraits<Vector3f, 1> {
+        static void Set(GLint loc, Vector3f vec) {
+            glUniform3f(loc, vec.x, vec.y, vec.z);
         }
     };
 
